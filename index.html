@@ -337,8 +337,8 @@
             charts = {};
         }
 
-        function renderCharts(monthlyBalanceData, categoryData, groupData) {
-    // Destrói gráficos antigos antes de desenhar novos
+function renderCharts(monthlyBalanceData, categoryData, groupData) {
+    // Destrói gráficos antigos para evitar sobreposição e erros
     Object.values(charts).forEach(chart => {
         if (chart) chart.destroy();
     });
@@ -347,6 +347,7 @@
     const monthlyBalanceContainer = document.getElementById('monthlyBalanceChartContainer');
     monthlyBalanceContainer.style.display = selectedMonth === 'all' ? 'flex' : 'none';
 
+    // Gráfico 1: Balanço Mensal
     if (selectedMonth === 'all') {
         const sortedMonths = Object.keys(monthlyBalanceData).sort();
         charts.monthly = new Chart(document.getElementById('monthlyBalanceChart').getContext('2d'), {
@@ -368,7 +369,7 @@
                 plugins: {
                     legend: { display: false },
                     datalabels: { display: false }
-                }, // <--- ‼️‼️ A VÍRGULA DA CORREÇÃO ESTÁ AQUI ‼️‼️
+                },
                 scales: {
                     y: {
                         suggestedMin: 0
@@ -378,6 +379,7 @@
         });
     }
 
+    // Gráfico 2: Despesas por Categoria
     charts.category = new Chart(document.getElementById('expensesByCategoryChart').getContext('2d'), {
         type: 'doughnut',
         data: {
@@ -393,19 +395,23 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'right', labels: { boxWidth: 12 } },
+                legend: {
+                    position: 'right',
+                    labels: { boxWidth: 12 }
+                },
                 datalabels: {
                     formatter: (value, ctx) => {
                         const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                         if (sum === 0) return '0%';
                         const percentage = (value * 100 / sum).toFixed(0) + "%";
                         return percentage;
-                    },
+                    } // <-- VÍRGULA REMOVIDA DAQUI
                 }
             }
         }
     });
 
+    // Gráfico 3: Despesas por Grupo
     charts.group = new Chart(document.getElementById('expensesByGroupChart').getContext('2d'), {
         type: 'bar',
         data: {
