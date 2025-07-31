@@ -355,8 +355,14 @@
                         }]
                     },
                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-                });
-            }
+		scales: {
+		y: {
+		suggestedMin: 0 // <-- AQUI ESTÁ A CORREÇÃO
+		}
+		}
+		}
+		});
+		}
 
             charts.category = new Chart(document.getElementById('expensesByCategoryChart').getContext('2d'), {
                 type: 'doughnut',
