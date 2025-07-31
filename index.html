@@ -354,15 +354,17 @@
                             fill: true, borderColor: 'var(--accent-blue)', backgroundColor: 'rgba(0, 123, 255, 0.2)', tension: 0.3
                         }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-		scales: {
-		y: {
-		suggestedMin: 0 // <-- AQUI ESTÁ A CORREÇÃO
-		}
-		}
-		}
-		});
-		}
+// CÓDIGO CORRIGIDO
+options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false }, datalabels: { display: false } }, // <<-- A VÍRGULA QUE FALTAVA
+    scales: {
+        y: {
+            suggestedMin: 0
+        }
+    }
+}
 
             charts.category = new Chart(document.getElementById('expensesByCategoryChart').getContext('2d'), {
                 type: 'doughnut',
