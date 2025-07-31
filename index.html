@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
     <style>
         :root {
@@ -24,7 +25,6 @@
             --accent-blue: #007bff;
             --accent-blue-transparent: rgba(0, 123, 255, 0.2);
         }
-
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
@@ -32,13 +32,11 @@
             margin: 0;
             padding: 0;
         }
-
         .container {
             max-width: 1400px;
             margin: auto;
             padding: 24px;
         }
-
         header {
             display: flex;
             justify-content: space-between;
@@ -46,25 +44,21 @@
             margin-bottom: 30px;
             flex-wrap: wrap;
             gap: 20px;
-            text-align: center;
         }
-
-        header > div {
+        .header-title {
             flex-grow: 1;
             text-align: center;
         }
-
         header h1 {
-            font-size: 36px;
-            margin-bottom: 5px;
+            font-size: 32px;
+            margin: 0;
+            font-weight: 700;
         }
-        
         header p {
-            font-size: 18px;
+            font-size: 16px;
             color: var(--secondary-text);
-            margin-top: 0;
+            margin-top: 4px;
         }
-
         .month-filter select {
             background-color: var(--surface-color);
             color: var(--primary-text);
@@ -74,7 +68,6 @@
             font-family: 'Inter', sans-serif;
             font-size: 14px;
         }
-
         .tabs {
             display: flex;
             background-color: var(--surface-color);
@@ -93,22 +86,18 @@
             font-size: 16px;
             font-weight: 500;
             transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+            border-bottom: 3px solid transparent;
         }
         .tab-button:hover {
             background-color: rgba(255, 255, 255, 0.05);
         }
         .tab-button.active {
-            color: var(--accent-blue);
+            color: var(--primary-text);
             font-weight: 600;
-            background-color: rgba(0, 123, 255, 0.1);
+            border-bottom: 3px solid var(--accent-blue);
         }
-
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
         .summary-grid {
             display: grid;
@@ -129,9 +118,7 @@
         .value.negative { color: var(--accent-red); }
         .value.neutral { color: var(--accent-blue); }
 
-        .charts-grid {
-            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px;
-        }
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
         .chart-wrapper {
             background-color: var(--surface-color); padding: 20px; border-radius: 12px;
             border: 1px solid var(--border-color); display: flex; flex-direction: column; height: 400px;
@@ -161,11 +148,11 @@
 
         @media (max-width: 1200px) { .charts-grid { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 600px) {
+        @media (max-width: 700px) {
             .container { padding: 16px; }
             header { flex-direction: column; align-items: center; }
-            header h1 { font-size: 22px; }
-            header p { font-size: 16px; }
+            header h1 { font-size: 24px; }
+            header p { font-size: 14px; }
             .summary-grid { grid-template-columns: 1fr 1fr; }
             .card-content .value { font-size: 22px; }
             .tab-button { padding: 10px 12px; font-size: 14px; }
@@ -173,10 +160,9 @@
     </style>
 </head>
 <body>
-
     <main class="container">
         <header>
-            <div>
+            <div class="header-title">
                 <h1>CONTROLE FINANCEIRO</h1>
                 <p>Olá, Luiz! Aqui estão suas finanças.</p>
             </div>
@@ -194,10 +180,7 @@
         <div id="loading" class="loading-message"><p>Carregando dados... ⚡️</p></div>
         <div id="error" class="error-message" style="display: none;"><p>Não foi possível carregar os dados.</p></div>
 
-        <div id="resumo" class="tab-content active">
-            <section class="summary-grid"> </section>
-        </div>
-
+        <div id="resumo" class="tab-content active"><section class="summary-grid"></section></div>
         <div id="graficos" class="tab-content">
             <section class="charts-grid">
                 <div class="chart-wrapper" id="monthlyBalanceChartContainer"><h2>Balanço Mensal</h2><canvas id="monthlyBalanceChart"></canvas></div>
@@ -205,13 +188,10 @@
                 <div class="chart-wrapper"><h2>Despesas por Grupo</h2><canvas id="expensesByGroupChart"></canvas></div>
             </section>
         </div>
-
         <div id="relatorio" class="tab-content">
             <section class="table-wrapper">
                 <table class="transactions-table">
-                    <thead>
-                        <tr><th>Tipo</th><th>Item</th><th>Categoria</th><th>Data</th><th>Valor</th></tr>
-                    </thead>
+                    <thead><tr><th>Tipo</th><th>Item</th><th>Categoria</th><th>Data</th><th>Valor</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </section>
@@ -219,264 +199,149 @@
     </main>
 
     <script>
-        // ‼️‼️‼️ ALTERE A LINHA ABAIXO COM A URL DA SUA API NO RENDER ‼️‼️‼️
         const apiUrl = 'https://f-control-personal.onrender.com/api/financial/data';
+        let fullData = {}, selectedMonth = 'all', charts = {};
 
-        let fullData = {};
-        let selectedMonth = 'all';
-        let charts = {};
+        const formatCurrency = (val) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const formatDate = (iso) => new Date(iso).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
 
-        const formatCurrency = (value) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        const formatDate = (isoString) => new Date(isoString).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
-
-        function openTab(event, tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+        function openTab(evt, tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
-            event.currentTarget.classList.add('active');
+            evt.currentTarget.classList.add('active');
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
+            Chart.register(ChartDataLabels);
             Chart.defaults.color = 'rgba(224, 224, 224, 0.8)';
             Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
-
-            const loadingDiv = document.getElementById('loading');
-            const errorDiv = document.getElementById('error');
-
+            Chart.defaults.plugins.datalabels.color = '#fff';
+            Chart.defaults.plugins.datalabels.font = { weight: 'bold' };
+            
             try {
+                document.getElementById('loading').style.display = 'block';
                 const response = await fetch(apiUrl);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 fullData = await response.json();
-                loadingDiv.style.display = 'none';
+                document.getElementById('loading').style.display = 'none';
                 populateMonthFilter();
                 updateDashboard();
             } catch (err) {
                 console.error('Erro ao buscar dados:', err);
-                loadingDiv.style.display = 'none';
-                errorDiv.style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
             }
         });
 
         function populateMonthFilter() {
             const selector = document.getElementById('monthSelector');
             selector.innerHTML = `<option value="all">Todos os Meses</option>`;
-            fullData.meses_disponiveis.forEach(month => {
-                selector.innerHTML += `<option value="${month}">${month}</option>`;
-            });
-            selector.addEventListener('change', (event) => {
-                selectedMonth = event.target.value;
+            fullData.meses_disponiveis.forEach(m => selector.innerHTML += `<option value="${m}">${m}</option>`);
+            selector.addEventListener('change', (e) => {
+                selectedMonth = e.target.value;
                 updateDashboard();
             });
         }
 
         function updateDashboard() {
-            let filteredTransactions = (selectedMonth === 'all')
-                ? fullData.transacoes
-                : fullData.transacoes.filter(t => t.MesAno === selectedMonth);
-
-            const summary = calculateSummary(filteredTransactions);
-            const despesas = filteredTransactions.filter(t => t.Tipo === 'Despesa');
-            const expensesByCategory = aggregateBy(despesas, 'Categoria');
-            const expensesByGroup = aggregateBy(despesas, 'Grupo');
-
+            const filtered = (selectedMonth === 'all') ? fullData.transacoes : fullData.transacoes.filter(t => t.MesAno === selectedMonth);
+            const summary = calculateSummary(filtered);
+            const expenses = filtered.filter(t => t.Tipo === 'Despesa');
+            const byCategory = aggregateBy(expenses, 'Categoria');
+            const byGroup = aggregateBy(expenses, 'Grupo');
             renderSummaryCards(summary);
-            renderCharts(fullData.saldo_mensal, expensesByCategory, expensesByGroup);
-            renderTransactionsTable(filteredTransactions);
+            renderCharts(fullData.saldo_mensal, byCategory, byGroup);
+            renderTransactionsTable(filtered);
         }
-        
+
         function calculateSummary(transactions) {
-            const summary = { total_entradas: 0, total_saidas: 0, saldo: 0, valor_conta: 0, valor_alimentacao: 0, valor_reserva: 0 };
+            const s = { total_entradas: 0, total_saidas: 0, saldo: 0, valor_conta: 0, valor_alimentacao: 0, valor_reserva: 0 };
             transactions.forEach(t => {
-                const valor = t.Valor || 0;
+                const v = t.Valor || 0;
                 if (t.Tipo === 'Receita') {
-                    summary.total_entradas += valor;
-                    if (!t.Categoria.includes('Reserva')) summary.valor_conta += valor;
-                    if (t.Conta && t.Conta.includes('Alimentação')) summary.valor_alimentacao += valor;
-                    if (t.Categoria.includes('Reserva')) summary.valor_reserva += valor;
+                    s.total_entradas += v;
+                    if (!t.Categoria.includes('Reserva')) s.valor_conta += v;
+                    if (t.Conta && t.Conta.includes('Alimentação')) s.valor_alimentacao += v;
+                    if (t.Categoria.includes('Reserva')) s.valor_reserva += v;
                 } else if (t.Tipo === 'Despesa') {
-                    summary.total_saidas += valor;
-                    if (!t.Categoria.includes('Reserva')) summary.valor_conta -= valor;
-                    if (t.Conta && t.Conta.includes('Alimentação')) summary.valor_alimentacao -= valor;
-                    if (t.Categoria.includes('Reserva')) summary.valor_reserva -= valor;
+                    s.total_saidas += v;
+                    if (!t.Categoria.includes('Reserva')) s.valor_conta -= v;
+                    if (t.Conta && t.Conta.includes('Alimentação')) s.valor_alimentacao -= v;
+                    if (t.Categoria.includes('Reserva')) s.valor_reserva -= v;
                 }
             });
-            summary.saldo = summary.total_entradas - summary.total_saidas;
-            return summary;
+            s.saldo = s.total_entradas - s.total_saidas;
+            return s;
         }
 
-        function aggregateBy(transactions, key) {
-            return transactions.reduce((acc, t) => {
-                const groupKey = t.Grupo || 'Outros'; // Default para 'Outros' se o grupo não estiver definido
-                acc[`${t.Grupo}`] = (acc[`${t.Grupo}`] || 0) + (t.Valor || 0);
-                return acc;
-            }, {});
-        }
+        const aggregateBy = (trans, key) => trans.reduce((acc, t) => {
+            const groupKey = t[key] || 'N/A';
+            acc[groupKey] = (acc[groupKey] || 0) + (t.Valor || 0);
+            return acc;
+        }, {});
 
         function renderSummaryCards(summary) {
             const container = document.querySelector('#resumo .summary-grid');
-            const cardsData = [
-                { title: 'Saldo em Conta', value: summary.valor_conta, icon: 'account_balance_wallet', type: 'neutral' },
-                { title: 'Cartão Alimentação', value: summary.valor_alimentacao, icon: 'restaurant', type: 'neutral' },
-                { title: 'Reserva', value: summary.valor_reserva, icon: 'savings', type: 'positive' },
-                { title: 'Saldo do Período', value: summary.saldo, icon: 'account_balance', type: summary.saldo >= 0 ? 'positive' : 'negative' },
-                { title: 'Entradas do Período', value: summary.total_entradas, icon: 'arrow_upward', type: 'positive' },
-                { title: 'Saídas do Período', value: summary.total_saidas, icon: 'arrow_downward', type: 'negative' }
+            const cards = [
+                { t: 'Saldo em Conta', v: summary.valor_conta, i: 'account_balance_wallet', c: 'neutral' },
+                { t: 'Cartão Alimentação', v: summary.valor_alimentacao, i: 'restaurant', c: 'neutral' },
+                { t: 'Reserva', v: summary.valor_reserva, i: 'savings', c: 'positive' },
+                { t: 'Saldo do Período', v: summary.saldo, i: 'account_balance', c: summary.saldo >= 0 ? 'positive' : 'negative' },
+                { t: 'Entradas do Período', v: summary.total_entradas, i: 'arrow_upward', c: 'positive' },
+                { t: 'Saídas do Período', v: summary.total_saidas, i: 'arrow_downward', c: 'negative' }
             ];
-            container.innerHTML = cardsData.map(card => `
-                <article class="card">
-                    <div class="card-header"><span class="material-symbols-outlined">${card.icon}</span><span>${card.title}</span></div>
-                    <div class="card-content"><p class="value ${card.type}">${formatCurrency(card.value)}</p></div>
-                </article>
-            `).join('');
-        }
-        
-        function destroyCharts() {
-            Object.values(charts).forEach(chart => {
-                if (chart) chart.destroy();
-            });
-            charts = {};
+            container.innerHTML = cards.map(c => `<article class="card"><div class="card-header"><span class="material-symbols-outlined">${c.i}</span><span>${c.t}</span></div><div class="card-content"><p class="value ${c.c}">${formatCurrency(c.v)}</p></div></article>`).join('');
         }
 
-function renderCharts(monthlyBalanceData, categoryData, groupData) {
-    // Destrói gráficos antigos para evitar sobreposição e erros
-    Object.values(charts).forEach(chart => {
-        if (chart) chart.destroy();
-    });
-    charts = {};
-    
-    const monthlyBalanceContainer = document.getElementById('monthlyBalanceChartContainer');
-    monthlyBalanceContainer.style.display = selectedMonth === 'all' ? 'flex' : 'none';
+        function destroyCharts() { Object.values(charts).forEach(c => c && c.destroy()); charts = {}; }
 
-    // Gráfico 1: Balanço Mensal
-    if (selectedMonth === 'all') {
-        const sortedMonths = Object.keys(monthlyBalanceData).sort();
-        charts.monthly = new Chart(document.getElementById('monthlyBalanceChart').getContext('2d'), {
-            type: 'line',
-            data: {
-                labels: sortedMonths,
-                datasets: [{
-                    label: 'Saldo Mensal',
-                    data: sortedMonths.map(m => monthlyBalanceData[m]),
-                    fill: true,
-                    borderColor: 'var(--accent-blue)',
-                    backgroundColor: 'var(--accent-blue-transparent)',
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    datalabels: { display: false }
-                },
-                scales: {
-                    y: {
-                        suggestedMin: 0
-                    }
-                }
+        function renderCharts(monthlyData, categoryData, groupData) {
+            destroyCharts();
+            document.getElementById('monthlyBalanceChartContainer').style.display = selectedMonth === 'all' ? 'flex' : 'none';
+
+            if (selectedMonth === 'all') {
+                const sortedMonths = Object.keys(monthlyData).sort();
+                charts.monthly = new Chart(document.getElementById('monthlyBalanceChart'), {
+                    type: 'line',
+                    data: {
+                        labels: sortedMonths,
+                        datasets: [{ data: sortedMonths.map(m => monthlyData[m]), fill: true, borderColor: 'var(--accent-blue)', backgroundColor: 'var(--accent-blue-transparent)', tension: 0.3 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { y: { suggestedMin: 0 } } }
+                });
             }
-        });
-    }
 
-    // Gráfico 2: Despesas por Categoria
-    charts.category = new Chart(document.getElementById('expensesByCategoryChart').getContext('2d'), {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(categoryData),
-            datasets: [{
-                data: Object.values(categoryData),
-                backgroundColor: ['#177E89', '#4A86B3', '#77A1D3', '#A7BEE3', '#D7DFF2', '#E0F2F7'],
-                borderColor: 'var(--surface-color)',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: { boxWidth: 12 }
-                },
-                datalabels: {
-                    formatter: (value, ctx) => {
-                        const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                        if (sum === 0) return '0%';
-                        const percentage = (value * 100 / sum).toFixed(0) + "%";
-                        return percentage;
-                    } // <-- VÍRGULA REMOVIDA DAQUI
-                }
-            }
-        }
-    });
-
-    // Gráfico 3: Despesas por Grupo
-    charts.group = new Chart(document.getElementById('expensesByGroupChart').getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: Object.keys(groupData),
-            datasets: [{
-                label: 'Despesas por Grupo',
-                data: Object.values(groupData),
-                backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                datalabels: { display: false }
-            }
-        }
-    });
-}
-
-            charts.category = new Chart(document.getElementById('expensesByCategoryChart').getContext('2d'), {
+            charts.category = new Chart(document.getElementById('expensesByCategoryChart'), {
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(categoryData),
-                    datasets: [{
-                        data: Object.values(categoryData),
-                        backgroundColor: ['#177E89', '#4A86B3', '#77A1D3', '#A7BEE3', '#D7DFF2', '#E0F2F7'],
-                        borderColor: 'var(--surface-color)', borderWidth: 2
-                    }]
+                    datasets: [{ data: Object.values(categoryData), backgroundColor: ['#177E89', '#4A86B3', '#77A1D3', '#A7BEE3', '#D7DFF2'], borderColor: 'var(--surface-color)', borderWidth: 2 }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 12 } } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 12 } }, datalabels: {
+                    formatter: (val, ctx) => { const s = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); return s === 0 ? '0%' : (val * 100 / s).toFixed(0) + "%"; }
+                }}}
             });
 
-            charts.group = new Chart(document.getElementById('expensesByGroupChart').getContext('2d'), {
+            charts.group = new Chart(document.getElementById('expensesByGroupChart'), {
                 type: 'bar',
                 data: {
                     labels: Object.keys(groupData),
-                    datasets: [{
-                        label: 'Despesas por Grupo', data: Object.values(groupData),
-                        backgroundColor: 'rgba(54, 162, 235, 0.7)', borderColor: 'rgba(54, 162, 235, 1)', borderWidth: 1
-                    }]
+                    datasets: [{ label: 'Despesas', data: Object.values(groupData), backgroundColor: 'rgba(54, 162, 235, 0.7)', borderColor: 'rgba(54, 162, 235, 1)', borderWidth: 1 }]
                 },
-                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } } }
             });
         }
-        
+
         function renderTransactionsTable(transactions) {
             const tbody = document.querySelector('.transactions-table tbody');
-            if (transactions.length === 0) {
+            if (!transactions.length) {
                 tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhum lançamento para o período.</td></tr>`;
                 return;
             }
-            tbody.innerHTML = transactions.sort((a, b) => new Date(b.Data) - new Date(a.Data)).map(t => `
-                <tr>
-                    <td><div class="type-indicator" style="color:${t.Tipo === 'Receita' ? 'var(--accent-green)' : 'var(--accent-red)'};"><span class="material-symbols-outlined">${t.Tipo === 'Receita' ? 'arrow_upward' : 'arrow_downward'}</span>${t.Tipo}</div></td>
-                    <td>${t.Item || 'N/A'}</td>
-                    <td>${t.Categoria || 'N/A'}</td>
-                    <td>${formatDate(t.Data)}</td>
-                    <td style="font-weight:600; color:${t.Tipo === 'Receita' ? 'var(--accent-green)' : 'var(--primary-text)'};">${formatCurrency(t.Valor || 0)}</td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = transactions.sort((a,b) => new Date(b.Data) - new Date(a.Data))
+                .map(t => `<tr><td><div class="type-indicator" style="color:${t.Tipo==='Receita'?'var(--accent-green)':'var(--accent-red)'};"><span class="material-symbols-outlined">${t.Tipo==='Receita'?'arrow_upward':'arrow_downward'}</span>${t.Tipo}</div></td><td>${t.Item||'N/A'}</td><td>${t.Categoria||'N/A'}</td><td>${formatDate(t.Data)}</td><td style="font-weight:600;color:${t.Tipo==='Receita'?'var(--accent-green)':'var(--primary-text)'};">${formatCurrency(t.Valor||0)}</td></tr>`)
+                .join('');
         }
     </script>
 </body>
