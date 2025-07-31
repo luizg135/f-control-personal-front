@@ -276,17 +276,36 @@
             destroyCharts();
             document.getElementById('monthlyBalanceChartContainer').style.display = selectedMonth === 'all' ? 'flex' : 'none';
 
-            if (selectedMonth === 'all') {
-                const sortedMonths = Object.keys(monthlyData).sort();
-                charts.monthly = new Chart(document.getElementById('monthlyBalanceChart'), {
-                    type: 'line',
-                    data: {
-                        labels: sortedMonths,
-                        datasets: [{ data: sortedMonths.map(m => monthlyData[m]), fill: true, borderColor: 'var(--accent-blue)', backgroundColor: 'var(--accent-blue-transparent)', tension: 0.3 }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { y: { suggestedMin: 0 } } }
-                });
-            }
+            // Dentro da função renderChartsAndReports
+
+// Dentro da função renderChartsAndReports
+
+if (selectedMonth === 'all') {
+    const sortedMonths = Object.keys(monthlyData).sort();
+    charts.monthly = new Chart(document.getElementById('monthlyBalanceChart'), {
+        type: 'line',
+        data: {
+            labels: sortedMonths,
+            datasets: [{
+                data: sortedMonths.map(m => monthlyData[m]),
+                fill: true,
+                // --- INÍCIO DA CORREÇÃO DE COR (FORÇADA) ---
+                borderColor: '#58a6ff',
+                backgroundColor: 'rgba(88, 166, 255, 0.2)',
+                // --- FIM DA CORREÇÃO DE COR (FORÇADA) ---
+                tension: 0.3,
+                pointBackgroundColor: '#58a6ff',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false }, datalabels: { display: false } },
+            scales: { y: { suggestedMin: 0 } }
+        }
+    });
+}
             
             // --- Lógica do Top 5 ---
             const getTop5 = (data) => Object.entries(data).sort(([,a],[,b]) => b-a).slice(0, 5);
