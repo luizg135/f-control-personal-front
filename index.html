@@ -338,32 +338,96 @@
         }
 
         function renderCharts(monthlyBalanceData, categoryData, groupData) {
-            destroyCharts();
-            
-            const monthlyBalanceContainer = document.getElementById('monthlyBalanceChartContainer');
-            monthlyBalanceContainer.style.display = selectedMonth === 'all' ? 'flex' : 'none';
+    // Destrói gráficos antigos antes de desenhar novos
+    Object.values(charts).forEach(chart => {
+        if (chart) chart.destroy();
+    });
+    charts = {};
+    
+    const monthlyBalanceContainer = document.getElementById('monthlyBalanceChartContainer');
+    monthlyBalanceContainer.style.display = selectedMonth === 'all' ? 'flex' : 'none';
 
-            if (selectedMonth === 'all') {
-                const sortedMonths = Object.keys(monthlyBalanceData).sort();
-                charts.monthly = new Chart(document.getElementById('monthlyBalanceChart').getContext('2d'), {
-                    type: 'line',
-                    data: {
-                        labels: sortedMonths,
-                        datasets: [{
-                            label: 'Saldo Mensal', data: sortedMonths.map(m => monthlyBalanceData && monthlyBalanceData.hasOwnProperty(m) ? monthlyBalanceData[(m)] : 0),
-                            fill: true, borderColor: 'var(--accent-blue)', backgroundColor: 'rgba(0, 123, 255, 0.2)', tension: 0.3
-                        }]
-                    },
-// CÓDIGO CORRIGIDO
-options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false }, datalabels: { display: false } }, // <<-- A VÍRGULA QUE FALTAVA
-    scales: {
-        y: {
-            suggestedMin: 0
-        }
+    if (selectedMonth === 'all') {
+        const sortedMonths = Object.keys(monthlyBalanceData).sort();
+        charts.monthly = new Chart(document.getElementById('monthlyBalanceChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: sortedMonths,
+                datasets: [{
+                    label: 'Saldo Mensal',
+                    data: sortedMonths.map(m => monthlyBalanceData[m]),
+                    fill: true,
+                    borderColor: 'var(--accent-blue)',
+                    backgroundColor: 'var(--accent-blue-transparent)',
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: { display: false }
+                }, // <--- ‼️‼️ A VÍRGULA DA CORREÇÃO ESTÁ AQUI ‼️‼️
+                scales: {
+                    y: {
+                        suggestedMin: 0
+                    }
+                }
+            }
+        });
     }
+
+    charts.category = new Chart(document.getElementById('expensesByCategoryChart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(categoryData),
+            datasets: [{
+                data: Object.values(categoryData),
+                backgroundColor: ['#177E89', '#4A86B3', '#77A1D3', '#A7BEE3', '#D7DFF2', '#E0F2F7'],
+                borderColor: 'var(--surface-color)',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'right', labels: { boxWidth: 12 } },
+                datalabels: {
+                    formatter: (value, ctx) => {
+                        const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                        if (sum === 0) return '0%';
+                        const percentage = (value * 100 / sum).toFixed(0) + "%";
+                        return percentage;
+                    },
+                }
+            }
+        }
+    });
+
+    charts.group = new Chart(document.getElementById('expensesByGroupChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(groupData),
+            datasets: [{
+                label: 'Despesas por Grupo',
+                data: Object.values(groupData),
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                datalabels: { display: false }
+            }
+        }
+    });
 }
 
             charts.category = new Chart(document.getElementById('expensesByCategoryChart').getContext('2d'), {
