@@ -15,161 +15,110 @@
 
     <style>
         :root {
-            --bg-color: #121212;
-            --surface-color: #1e1e1e;
-            --primary-text: #e0e0e0;
-            --secondary-text: #a0a0a0;
-            --border-color: #333333;
-            --accent-green: #28a745;
-            --accent-red: #dc3545;
-            --accent-blue: #007bff;
-            --accent-blue-transparent: rgba(0, 123, 255, 0.2);
+            --bg-color: #0d1117;
+            --surface-color: #161b22;
+            --primary-text: #e6edf3;
+            --secondary-text: #7d8590;
+            --border-color: #30363d;
+            --accent-green: #238636;
+            --accent-red: #da3633;
+            --accent-blue: #58a6ff;
+            --accent-blue-transparent: rgba(88, 166, 255, 0.2);
         }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--primary-text);
-            margin: 0;
-            padding: 0;
+            font-family: 'Inter', sans-serif; background-color: var(--bg-color);
+            color: var(--primary-text); margin: 0; padding: 0;
         }
-        .container {
-            max-width: 1400px;
-            margin: auto;
-            padding: 24px;
-        }
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        .header-title {
-            flex-grow: 1;
-            text-align: center;
-        }
-        header h1 {
-            font-size: 32px;
-            margin: 0;
-            font-weight: 700;
-        }
-        header p {
-            font-size: 16px;
-            color: var(--secondary-text);
-            margin-top: 4px;
-        }
+        .container { max-width: 1400px; margin: auto; padding: 24px; }
+        header { text-align: center; margin-bottom: 32px; }
+        header h1 { font-size: 28px; margin: 0; font-weight: 600; letter-spacing: 1px; }
+        header p { font-size: 16px; color: var(--secondary-text); margin-top: 8px; }
+        
+        .controls-bar { display: flex; justify-content: center; margin-bottom: 24px; }
         .month-filter select {
-            background-color: var(--surface-color);
-            color: var(--primary-text);
-            border: 1px solid var(--border-color);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
+            background-color: var(--surface-color); color: var(--primary-text);
+            border: 1px solid var(--border-color); padding: 10px 16px; border-radius: 8px;
+            font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500;
         }
+
         .tabs {
-            display: flex;
-            background-color: var(--surface-color);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 24px;
-            border: 1px solid var(--border-color);
+            display: flex; justify-content: center; gap: 24px;
+            margin-bottom: 32px; border-bottom: 1px solid var(--border-color);
         }
         .tab-button {
-            flex-grow: 1;
-            padding: 14px 20px;
-            cursor: pointer;
-            background-color: transparent;
-            border: none;
-            color: var(--secondary-text);
-            font-size: 16px;
-            font-weight: 500;
-            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-            border-bottom: 3px solid transparent;
+            padding: 0 8px 16px 8px; cursor: pointer; background-color: transparent;
+            border: none; color: var(--secondary-text); font-size: 16px; font-weight: 500;
+            border-bottom: 2px solid transparent; transition: all 0.2s ease-in-out;
         }
-        .tab-button:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-        .tab-button.active {
-            color: var(--primary-text);
-            font-weight: 600;
-            border-bottom: 3px solid var(--accent-blue);
-        }
+        .tab-button:hover { color: var(--primary-text); }
+        .tab-button.active { color: var(--accent-blue); border-bottom: 2px solid var(--accent-blue); }
+
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-        }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
         .card {
             background-color: var(--surface-color); padding: 20px; border-radius: 12px;
             border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px;
         }
-        .card-header {
-            display: flex; align-items: center; gap: 12px;
-            color: var(--secondary-text); font-weight: 500;
-        }
+        .card-header { display: flex; align-items: center; gap: 12px; color: var(--secondary-text); font-weight: 500; }
         .card-header .material-symbols-outlined { font-size: 24px; }
         .card-content .value { font-size: 28px; font-weight: 700; letter-spacing: -1px; }
         .value.positive { color: var(--accent-green); }
         .value.negative { color: var(--accent-red); }
         .value.neutral { color: var(--accent-blue); }
 
-        .charts-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+        .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
         .chart-wrapper {
             background-color: var(--surface-color); padding: 20px; border-radius: 12px;
             border: 1px solid var(--border-color); display: flex; flex-direction: column; height: 400px;
         }
-        .chart-wrapper h2 {
+        .chart-wrapper h2, .report-wrapper h2 {
             margin-top: 0; margin-bottom: 20px; color: var(--secondary-text);
             font-weight: 500; font-size: 16px;
         }
+        .report-wrapper {
+             background-color: var(--surface-color); padding: 20px; border-radius: 12px;
+            border: 1px solid var(--border-color); height: 400px;
+        }
+        .category-report-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .category-report-item:last-child { border-bottom: none; }
+        .category-report-item .name { font-weight: 500; }
+        .category-report-item .percentage { font-weight: 700; color: var(--accent-blue); }
         
         .table-wrapper { overflow-x: auto; }
         .transactions-table {
             width: 100%; border-collapse: collapse; background-color: var(--surface-color);
             border-radius: 12px; overflow: hidden;
         }
-        .transactions-table th, .transactions-table td {
-            padding: 16px; text-align: left; border-bottom: 1px solid var(--border-color);
-        }
+        .transactions-table th, .transactions-table td { padding: 16px; text-align: left; border-bottom: 1px solid var(--border-color); }
         .transactions-table th { font-weight: 600; font-size: 14px; color: var(--secondary-text); }
         .transactions-table tbody tr:last-child td { border-bottom: none; }
         .transactions-table tbody tr:hover { background-color: #2a2a2a; }
         .transactions-table .type-indicator { display: flex; align-items: center; gap: 8px; }
         .transactions-table .type-indicator .material-symbols-outlined { font-size: 20px; }
         
-        .loading-message, .error-message {
-            text-align: center; font-size: 18px; padding: 40px; color: var(--secondary-text);
-        }
+        .loading-message, .error-message { text-align: center; font-size: 18px; padding: 40px; color: var(--secondary-text); }
 
-        @media (max-width: 1200px) { .charts-grid { grid-template-columns: 1fr 1fr; } }
-        @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 700px) {
-            .container { padding: 16px; }
-            header { flex-direction: column; align-items: center; }
-            header h1 { font-size: 24px; }
-            header p { font-size: 14px; }
+        @media (max-width: 1200px) { .charts-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) {
+            header h1 { font-size: 24px; } header p { font-size: 14px; }
             .summary-grid { grid-template-columns: 1fr 1fr; }
             .card-content .value { font-size: 22px; }
-            .tab-button { padding: 10px 12px; font-size: 14px; }
         }
     </style>
 </head>
 <body>
     <main class="container">
         <header>
-            <div class="header-title">
-                <h1>CONTROLE FINANCEIRO</h1>
-                <p>Olá, Luiz! Aqui estão suas finanças.</p>
-            </div>
+            <h1>CONTROLE FINANCEIRO</h1>
+            <p>Olá, Luiz! Aqui estão suas finanças.</p>
+        </header>
+
+        <div class="controls-bar">
             <div class="month-filter">
                 <select id="monthSelector"></select>
             </div>
-        </header>
+        </div>
 
         <nav class="tabs">
             <button class="tab-button active" onclick="openTab(event, 'resumo')">Resumo</button>
@@ -184,8 +133,8 @@
         <div id="graficos" class="tab-content">
             <section class="charts-grid">
                 <div class="chart-wrapper" id="monthlyBalanceChartContainer"><h2>Balanço Mensal</h2><canvas id="monthlyBalanceChart"></canvas></div>
-                <div class="chart-wrapper"><h2>Despesas por Categoria</h2><canvas id="expensesByCategoryChart"></canvas></div>
-                <div class="chart-wrapper"><h2>Despesas por Grupo</h2><canvas id="expensesByGroupChart"></canvas></div>
+                <div class="report-wrapper"><h2>Top 5 Despesas por Categoria</h2><div id="categoryReport"></div></div>
+                <div class="chart-wrapper"><h2>Top 5 Despesas por Grupo</h2><canvas id="expensesByGroupChart"></canvas></div>
             </section>
         </div>
         <div id="relatorio" class="tab-content">
@@ -216,8 +165,6 @@
             Chart.register(ChartDataLabels);
             Chart.defaults.color = 'rgba(224, 224, 224, 0.8)';
             Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
-            Chart.defaults.plugins.datalabels.color = '#fff';
-            Chart.defaults.plugins.datalabels.font = { weight: 'bold' };
             
             try {
                 document.getElementById('loading').style.display = 'block';
@@ -237,7 +184,10 @@
         function populateMonthFilter() {
             const selector = document.getElementById('monthSelector');
             selector.innerHTML = `<option value="all">Todos os Meses</option>`;
-            fullData.meses_disponiveis.forEach(m => selector.innerHTML += `<option value="${m}">${m}</option>`);
+            fullData.meses_disponiveis.forEach(m => {
+                const [year, month] = m.split('-');
+                selector.innerHTML += `<option value="${m}">${month}/${year}</option>`;
+            });
             selector.addEventListener('change', (e) => {
                 selectedMonth = e.target.value;
                 updateDashboard();
@@ -251,7 +201,7 @@
             const byCategory = aggregateBy(expenses, 'Categoria');
             const byGroup = aggregateBy(expenses, 'Grupo');
             renderSummaryCards(summary);
-            renderCharts(fullData.saldo_mensal, byCategory, byGroup);
+            renderChartsAndReports(fullData.saldo_mensal, byCategory, byGroup);
             renderTransactionsTable(filtered);
         }
 
@@ -259,16 +209,29 @@
             const s = { total_entradas: 0, total_saidas: 0, saldo: 0, valor_conta: 0, valor_alimentacao: 0, valor_reserva: 0 };
             transactions.forEach(t => {
                 const v = t.Valor || 0;
+                const isReserva = t.Categoria && t.Categoria.includes('Reserva');
+                const isAlimentacao = t.Conta && t.Conta.includes('Alimentação');
+
                 if (t.Tipo === 'Receita') {
                     s.total_entradas += v;
-                    if (!t.Categoria.includes('Reserva')) s.valor_conta += v;
-                    if (t.Conta && t.Conta.includes('Alimentação')) s.valor_alimentacao += v;
-                    if (t.Categoria.includes('Reserva')) s.valor_reserva += v;
+                    if (isAlimentacao) {
+                        s.valor_alimentacao += v;
+                    } else if (isReserva) {
+                        s.valor_reserva += v;
+                        s.valor_conta -= v; // Transferência de saída da conta principal
+                    } else {
+                        s.valor_conta += v;
+                    }
                 } else if (t.Tipo === 'Despesa') {
                     s.total_saidas += v;
-                    if (!t.Categoria.includes('Reserva')) s.valor_conta -= v;
-                    if (t.Conta && t.Conta.includes('Alimentação')) s.valor_alimentacao -= v;
-                    if (t.Categoria.includes('Reserva')) s.valor_reserva -= v;
+                    if (isAlimentacao) {
+                        s.valor_alimentacao -= v;
+                    } else if (isReserva) {
+                        s.valor_reserva -= v;
+                        s.valor_conta += v; // Transferência de volta para a conta principal
+                    } else {
+                        s.valor_conta -= v;
+                    }
                 }
             });
             s.saldo = s.total_entradas - s.total_saidas;
@@ -296,7 +259,7 @@
 
         function destroyCharts() { Object.values(charts).forEach(c => c && c.destroy()); charts = {}; }
 
-        function renderCharts(monthlyData, categoryData, groupData) {
+        function renderChartsAndReports(monthlyData, categoryData, groupData) {
             destroyCharts();
             document.getElementById('monthlyBalanceChartContainer').style.display = selectedMonth === 'all' ? 'flex' : 'none';
 
@@ -311,26 +274,42 @@
                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { y: { suggestedMin: 0 } } }
                 });
             }
+            
+            // --- Lógica do Top 5 ---
+            const getTop5 = (data) => Object.entries(data).sort(([,a],[,b]) => b-a).slice(0, 5);
+            const top5Groups = getTop5(groupData);
+            const top5Categories = getTop5(categoryData);
 
-            charts.category = new Chart(document.getElementById('expensesByCategoryChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(categoryData),
-                    datasets: [{ data: Object.values(categoryData), backgroundColor: ['#177E89', '#4A86B3', '#77A1D3', '#A7BEE3', '#D7DFF2'], borderColor: 'var(--surface-color)', borderWidth: 2 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 12 } }, datalabels: {
-                    formatter: (val, ctx) => { const s = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); return s === 0 ? '0%' : (val * 100 / s).toFixed(0) + "%"; }
-                }}}
-            });
+            renderCategoryReport(top5Categories);
 
             charts.group = new Chart(document.getElementById('expensesByGroupChart'), {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(groupData),
-                    datasets: [{ label: 'Despesas', data: Object.values(groupData), backgroundColor: 'rgba(54, 162, 235, 0.7)', borderColor: 'rgba(54, 162, 235, 1)', borderWidth: 1 }]
+                    labels: top5Groups.map(item => item[0]),
+                    datasets: [{ label: 'Despesas', data: top5Groups.map(item => item[1]), backgroundColor: 'rgba(88, 166, 255, 0.7)', borderColor: 'var(--accent-blue)', borderWidth: 1 }]
                 },
                 options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } } }
             });
+        }
+        
+        function renderCategoryReport(top5Categories) {
+            const container = document.getElementById('categoryReport');
+            const totalExpenses = Object.values(top5Categories).reduce((sum, [,value]) => sum + value, 0);
+            
+            if (top5Categories.length === 0) {
+                container.innerHTML = `<p style="text-align:center; color: var(--secondary-text);">Sem dados de categoria para exibir.</p>`;
+                return;
+            }
+
+            container.innerHTML = top5Categories.map(([name, value]) => {
+                const percentage = totalExpenses > 0 ? ((value / totalExpenses) * 100).toFixed(0) : 0;
+                return `
+                    <div class="category-report-item">
+                        <span class="name">${name}</span>
+                        <span class="percentage">${percentage}%</span>
+                    </div>
+                `;
+            }).join('');
         }
 
         function renderTransactionsTable(transactions) {
