@@ -206,37 +206,50 @@
         }
 
         function calculateSummary(transactions) {
-            const s = { total_entradas: 0, total_saidas: 0, saldo: 0, valor_conta: 0, valor_alimentacao: 0, valor_reserva: 0 };
-            transactions.forEach(t => {
-                const v = t.Valor || 0;
-                const isReserva = t.Categoria && t.Categoria.includes('Reserva');
-                const isAlimentacao = t.Conta && t.Conta.includes('Alimentação');
+    const s = { total_entradas: 0, total_saidas: 0, saldo: 0, valor_conta: 0, valor_alimentacao: 0, valor_reserva: 0 };
+    transactions.forEach(t => {
+        const v = t.Valor || 0;
+        const isReserva = t.Categoria && t.Categoria.includes('Reserva');
+        const isAlimentacao = t.Conta && t.Conta.includes('Alimentação');
+        const isAjuste = t.Grupo && t.Grupo.includes('Ajuste');
 
-                if (t.Tipo === 'Receita') {
-                    s.total_entradas += v;
-                    if (isAlimentacao) {
-                        s.valor_alimentacao += v;
-                    } else if (isReserva) {
-                        s.valor_reserva += v;
-                        s.valor_conta -= v; // Transferência de saída da conta principal
-                    } else {
-                        s.valor_conta += v;
-                    }
-                } else if (t.Tipo === 'Despesa') {
-                    s.total_saidas += v;
-                    if (isAlimentacao) {
-                        s.valor_alimentacao -= v;
-                    } else if (isReserva) {
-                        s.valor_reserva -= v;
-                        s.valor_conta += v; // Transferência de volta para a conta principal
-                    } else {
-                        s.valor_conta -= v;
-                    }
-                }
-            });
-            s.saldo = s.total_entradas - s.total_saidas;
-            return s;
+        if (t.Tipo === 'Receita') {
+            // --- INÍCIO DA CORREÇÃO ---
+            // Só soma nas entradas se NÃO for Ajuste E NÃO for Reserva (transferência)
+            if (!isAjuste && !isReserva) {
+                s.total_entradas += v;
+            }
+            // --- FIM DA CORREÇÃO ---
+            
+            if (isAlimentacao) {
+                s.valor_alimentacao += v;
+            } else if (isReserva) {
+                s.valor_reserva += v;
+                s.valor_conta -= v; 
+            } else {
+                s.valor_conta += v;
+            }
+        } else if (t.Tipo === 'Despesa') {
+            // --- INÍCIO DA CORREÇÃO ---
+            // Só soma nas saídas se NÃO for Ajuste E NÃO for Reserva (transferência)
+            if (!isAjuste && !isReserva) {
+                s.total_saidas += v;
+            }
+            // --- FIM DA CORREÇÃO ---
+
+            if (isAlimentacao) {
+                s.valor_alimentacao -= v;
+            } else if (isReserva) {
+                s.valor_reserva -= v;
+                s.valor_conta += v; 
+            } else {
+                s.valor_conta -= v;
+            }
         }
+    });
+    s.saldo = s.total_entradas - s.total_saidas;
+    return s;
+}
 
         const aggregateBy = (trans, key) => trans.reduce((acc, t) => {
             const groupKey = t[key] || 'N/A';
